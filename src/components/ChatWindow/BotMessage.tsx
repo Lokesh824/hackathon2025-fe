@@ -8,6 +8,7 @@ import {
   CopyOutlined,
   SyncOutlined,
 } from '@ant-design/icons';
+import { parseFormattedText, renderFormattedText } from '../../utils/textFormatter';
 
 const MessageContainer = styled.div`
   display: flex;
@@ -26,8 +27,34 @@ const Bubble = styled.div`
   line-height: 1.5;
 `;
 
-const Text = styled.div`
+const TextContainer = styled.div`
   margin-bottom: 12px;
+  
+  h2, h3 {
+    font-weight: bold;
+    color: #172b4d;
+    margin: 12px 0 8px 0;
+    line-height: 1.4;
+  }
+  
+  h2 {
+    font-size: 16px;
+  }
+  
+  h3 {
+    font-size: 14px;
+  }
+  
+  p {
+    margin: 8px 0;
+    line-height: 1.5;
+    font-size: 13px;
+  }
+  
+  strong {
+    font-weight: 600;
+    color: #172b4d;
+  }
 `;
 
 const Attachment = styled.div`
@@ -77,11 +104,16 @@ const BotMessage: React.FC<BotMessageProps> = ({ text, attachment, feedback }) =
     window.open('https://docgenai.dev8.lsacone.com/authoring-mode/d6693de2-7929-4bd7-b852-e134cc9a62ba', '_blank');
   };
 
+  const formatText = (text: string) => {
+    const elements = parseFormattedText(text);
+    return renderFormattedText(elements);
+  };
+
   return (
     <MessageContainer>
       <Avatar src="/src/assets/robo.png" />
       <Bubble>
-        <Text>{text}</Text>
+        <TextContainer>{formatText(text)}</TextContainer>
         {attachment && (
           <Attachment>
             <AttachmentInfo>
