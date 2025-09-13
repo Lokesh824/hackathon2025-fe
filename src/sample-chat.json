@@ -1,0 +1,19 @@
+[
+  {
+    "type": "human",
+    "text": "I want to create a CSR Document"
+  },
+  {
+    "type": "bot",
+    "text": "Of course. I will create a comprehensive Corporate Social Responsibility (CSR) document for you. This document will serve as a foundational policy that you can adapt for your specific company. Here is the file.",
+    "attachment": {
+      "name": "Corporate Social Responsibility Policy Sep 12, 5:42 PM",
+      "action": "Download"
+    },
+    "feedback": true
+  },
+  {
+    "type": "bot",
+    "text": "This document provides a solid framework. You can now edit the placeholders like [Company Name] and adjust the goals to better fit your organization's specific mission and capabilities. Let me know if you need any other documents!"
+  }
+]
