@@ -106,7 +106,6 @@ const BackgroundImage = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url('http://localhost:3845/assets/17542f774689ec264ca2bdf643a57317f327d1da.png');
   background-size: cover;
   background-position: center;
   opacity: 0.1;
@@ -178,7 +177,7 @@ const Chat: React.FC = () => {
 
       setConversationState('idle');
     } else if (text.toLowerCase().includes('create a csr protocol document')) {
-      const botResponse: Message = { type: 'bot', text: 'What will be the name of the protocol?' };
+      const botResponse: Message = { type: 'bot', text: 'What will be the name of the study?' };
       setMessages(prev => [...prev, botResponse]);
       setConversationState('awaiting_protocol_name');
     } else if (text.toLowerCase().startsWith('how do i')) {

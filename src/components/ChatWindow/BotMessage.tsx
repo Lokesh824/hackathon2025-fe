@@ -73,9 +73,13 @@ interface BotMessageProps {
 }
 
 const BotMessage: React.FC<BotMessageProps> = ({ text, attachment, feedback }) => {
+  const handleViewDocument = () => {
+    window.open('https://docgenai.dev8.lsacone.com/authoring-mode/d6693de2-7929-4bd7-b852-e134cc9a62ba', '_blank');
+  };
+
   return (
     <MessageContainer>
-      <Avatar src="http://localhost:3845/assets/ac5e26a51ad906a1ced6441e4766b2930f003da4.png" />
+      <Avatar src="/src/assets/robo.png" />
       <Bubble>
         <Text>{text}</Text>
         {attachment && (
@@ -87,7 +91,7 @@ const BotMessage: React.FC<BotMessageProps> = ({ text, attachment, feedback }) =
                 <AttachmentMeta>Sep 12, 5:42 PM</AttachmentMeta>
               </div>
             </AttachmentInfo>
-            <Button size="small">{attachment.action}</Button>
+            <Button size="small" onClick={handleViewDocument}>{attachment.action}</Button>
           </Attachment>
         )}
         {feedback && (
