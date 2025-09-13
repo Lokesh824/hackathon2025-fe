@@ -4,8 +4,10 @@ import Header from '../components/Header/Header';
 import Sidebar from '../components/Sidebar/Sidebar';
 import ChatInput from '../components/ChatInput/ChatInput';
 import ChatWindow from '../components/ChatWindow/ChatWindow';
+import TypingLoader from '../components/TypingLoader/TypingLoader';
 import { Button } from 'antd';
 import { BulbOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { chatService } from '../services/api';
 
 const AppContainer = styled.div`
   display: flex;
@@ -131,6 +133,7 @@ type ConversationState = 'idle' | 'awaiting_protocol_name';
 const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversationState, setConversationState] = useState<ConversationState>('idle');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     // Log messages to console when they change, but not for the initial empty state.
@@ -149,22 +152,29 @@ const Chat: React.FC = () => {
 
         if (conversationState === 'awaiting_protocol_name') {
       const protocolName = text;
-      setMessages(prev => [...prev, { type: 'bot', text: `Creating protocol: ${protocolName}...` }]);
-
-      // Simulate API call
-      setTimeout(() => {
-        const docId = Math.random().toString(36).substring(7);
+      
+      try {
+        setIsLoading(true);
+        setMessages(prev => [...prev, { type: 'bot', text: `Creating protocol: ${protocolName}...` }]);
+        
+        const data = await chatService.createCSRProtocol(protocolName);
+        console.log('CSR Protocol creation response:', data);
+        
         const botResponse: Message = {
           type: 'bot',
-          text: 'Your document has been created.',
+          text: `Your CSR protocol "${protocolName}" has been created successfully!`,
           attachment: {
             name: `${protocolName}.docx`,
             action: 'View Document',
           },
         };
-        console.log(`Document created with ID: ${docId}`);
         setMessages(prev => [...prev, botResponse]);
-      }, 2000);
+      } catch (error) {
+        console.error('CSR Protocol creation error:', error);
+        setMessages(prev => [...prev, { type: 'bot', text: 'Sorry, there was an error creating the CSR protocol. Please try again.' }]);
+      } finally {
+        setIsLoading(false);
+      }
 
       setConversationState('idle');
     } else if (text.toLowerCase().includes('create a csr protocol document')) {
@@ -173,35 +183,26 @@ const Chat: React.FC = () => {
       setConversationState('awaiting_protocol_name');
     } else if (text.toLowerCase().startsWith('how do i')) {
       try {
-        const response = await fetch('http://34.61.162.82:8080/rag/api/v1/chat/jira', {
-          method: 'POST',
-          headers: {
-            'accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ question: text })
-        });
-        const data = await response.json();
-        setMessages(prev => [...prev, { type: 'bot', text: data.response }]);
+        setIsLoading(true);
+        const data = await chatService.sendJiraQuestion(text);
+        setMessages(prev => [...prev, { type: 'bot', text: data?.result ?? "" }]);
       } catch (error) {
         console.error('API Error:', error);
         setMessages(prev => [...prev, { type: 'bot', text: 'Sorry, I am having trouble connecting to the server.' }]);
+      } finally {
+        setIsLoading(false);
       }
     } else if (text.toLowerCase().startsWith('tell me about') || text.toLowerCase().startsWith('give me list')) {
       try {
-        const response = await fetch('http://34.61.162.82:8080/rag/api/v1/chat/', {
-          method: 'POST',
-          headers: {
-            'accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ question: text })
-        });
-        const data = await response.json();
-        setMessages(prev => [...prev, { type: 'bot', text: data.response }]);
+        setIsLoading(true);
+        const data = await chatService.sendGeneralQuestion(text);
+        console.log('the data is', data)
+        setMessages(prev => [...prev, { type: 'bot', text: `${data?.pubmed ?? ""} \n ${data?.ctgov ?? ""}` }]);
       } catch (error) {
         console.error('API Error:', error);
         setMessages(prev => [...prev, { type: 'bot', text: 'Sorry, I am having trouble connecting to the server.' }]);
+      } finally {
+        setIsLoading(false);
       }
     } else {
       // Default bot response
@@ -231,7 +232,10 @@ const Chat: React.FC = () => {
                 </WelcomeSubtext>
               </>
             ) : (
-              <ChatWindow messages={messages} />
+              <>
+                <ChatWindow messages={messages} />
+                {isLoading && <TypingLoader />}
+              </>
             )}
             <ChatInput onSendMessage={handleSendMessage} />
           </ChatArea>
